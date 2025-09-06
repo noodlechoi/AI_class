@@ -1,7 +1,5 @@
 import copy
-import math
-from asyncio.windows_events import INFINITE
-
+import sys
 
 class State:
     def __init__(self, board, goal, depth = 0):
@@ -16,15 +14,16 @@ class State:
 
     def expand(self, depth):
         result = []
+        if depth > 5: return result  # 깊이가 5 이상이면 더 이상 확장을 하지 않는다.
         i = self.board.index(0)
-        if not i in [0, 3, 6]:  # Left
-            result.append(self.get_new_board(i, i - 1, depth))
-        if not i in [0, 1, 2]:  # Up
-            result.append(self.get_new_board(i, i - 3, depth))
+        if not i in [6, 7, 8]:  # Down
+            result.append(self.get_new_board(i, i + 3, depth))
         if not i in [2, 5, 8]:  # Right
             result.append(self.get_new_board(i, i + 1, depth))
-        if not i in [6, 7, 8]: # Down
-            result.append(self.get_new_board(i, i + 3, depth))
+        if not i in [0, 1, 2]:  # Up
+            result.append(self.get_new_board(i, i - 3, depth))
+        if not i in [0, 3, 6]:  # Left
+            result.append(self.get_new_board(i, i - 1, depth))
         return result
 
     def __str__(self):
@@ -39,9 +38,9 @@ class State:
     def __ne__(self, other):
         return self.board != other.board
 
-def BFS(root, goal):
+def BFS(state):
     open_queue = []
-    open_queue.append(State(root, goal))
+    open_queue.append(state)
 
     closed_queue = []
     depth = 0
@@ -68,11 +67,11 @@ def BFS(root, goal):
                 open_queue.append(state)
 
 
-def DFS(root, goal):
+def DFS(state, limit_depth):
     open_stack = []
-    open_stack.append(State(root, goal))
+    open_stack.append(state)
 
-    closed_stack = []
+    closed_queue = []
     depth = 0
 
     count = 1
@@ -83,19 +82,27 @@ def DFS(root, goal):
         print(current)
         if current.board == goal:
             print("탐색 성공")
-            break
+            return True
 
         depth = current.depth + 1
-        closed_stack.append(current)
+        closed_queue.append(current)
 
         if depth > 5:
             continue
+        if depth > limit_depth:
+            break
         for state in current.expand(depth):
-            if (state in closed_stack) or (state in open_stack):
+            if (state in closed_queue) or (state in open_stack):
                 continue
             else:
                 open_stack.insert(0, state) # 앞에서 추가
 
+    return False
+
+def IDDFS(state):
+    for depth in range(0, sys.maxsize):
+        if DFS(state, depth):
+            break
 
 
 puzzle = [2, 8, 3,
@@ -105,4 +112,4 @@ goal = [1, 2, 3,
         8, 0, 4,
         7, 6, 5]
 
-DFS(puzzle, goal)
+IDDFS(State(puzzle, goal))
