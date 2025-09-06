@@ -39,6 +39,65 @@ class State:
     def __ne__(self, other):
         return self.board != other.board
 
+def BFS(root, goal):
+    open_queue = []
+    open_queue.append(State(root, goal))
+
+    closed_queue = []
+    depth = 0
+
+    count = 1
+    while len(open_queue) != 0:
+        current = open_queue.pop(0) # open 리스트 앞에서 삭제
+        print(count)
+        count += 1
+        print(current)
+        if current.board == goal:
+            print("탐색 성공")
+            break
+
+        depth = current.depth + 1
+        closed_queue.append(current)
+
+        if depth > 5:
+            continue
+        for state in current.expand(depth):
+            if (state in closed_queue) or (state in open_queue):
+                continue
+            else:
+                open_queue.append(state)
+
+
+def DFS(root, goal):
+    open_stack = []
+    open_stack.append(State(root, goal))
+
+    closed_stack = []
+    depth = 0
+
+    count = 1
+    while len(open_stack) != 0:
+        current = open_stack.pop(0) # open 리스트 앞에서 삭제
+        print(count)
+        count += 1
+        print(current)
+        if current.board == goal:
+            print("탐색 성공")
+            break
+
+        depth = current.depth + 1
+        closed_stack.append(current)
+
+        if depth > 5:
+            continue
+        for state in current.expand(depth):
+            if (state in closed_stack) or (state in open_stack):
+                continue
+            else:
+                open_stack.insert(0, state) # 앞에서 추가
+
+
+
 puzzle = [2, 8, 3,
           1, 6, 4,
           7, 0, 5]
@@ -46,29 +105,4 @@ goal = [1, 2, 3,
         8, 0, 4,
         7, 6, 5]
 
-open_queue = []
-open_queue.append(State(puzzle, goal))
-
-closed_queue = []
-depth = 0
-
-count = 1
-while len(open_queue) != 0:
-    current = open_queue.pop(0) # open 리스트 앞에서 삭제
-    print(count)
-    count += 1
-    print(current)
-    if current.board == goal:
-        print("탐색 성공")
-        break
-
-    depth = current.depth + 1
-    closed_queue.append(current)
-
-    if depth > 5:
-        continue
-    for state in current.expand(depth):
-        if (state in closed_queue) or (state in open_queue):
-            continue
-        else:
-            open_queue.append(state)
+DFS(puzzle, goal)
