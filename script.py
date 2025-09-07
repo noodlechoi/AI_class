@@ -1,3 +1,4 @@
+# 2022180039 최미나
 import copy
 import sys
 
@@ -84,25 +85,25 @@ def DFS(state, limit_depth):
             print("탐색 성공")
             return True
 
+        if current.depth > limit_depth:
+            continue
         depth = current.depth + 1
         closed_queue.append(current)
 
         if depth > 5:
             continue
-        if depth > limit_depth:
-            break
         for state in current.expand(depth):
             if (state in closed_queue) or (state in open_stack):
                 continue
             else:
                 open_stack.insert(0, state) # 앞에서 추가
-
     return False
 
 def IDDFS(state):
     for depth in range(0, sys.maxsize):
         if DFS(state, depth):
             break
+
 
 
 puzzle = [2, 8, 3,
@@ -113,3 +114,4 @@ goal = [1, 2, 3,
         7, 6, 5]
 
 IDDFS(State(puzzle, goal))
+print("2022180039 최미나\n")
