@@ -10,14 +10,14 @@ class State:
     def get_new_board(self, i, depth):
         new_board = copy.deepcopy(self.board[:])
         new_board[i] = 1
-        return State(new_board, self.score, self.size, depth)
+        return State(new_board,self.size, self.score, depth)
 
     def expand(self, depth):
         result = []
-        if depth > 5: return result  # 깊이가 5 이상이면 더 이상 확장을 하지 않는다.
-        col_size = (self.size * (depth - 1))
+
+        arr_size = (self.size * (depth - 1))    # 깊이에 따라 행 위치 지정
         for i in range(self.size):
-            result.append(self.get_new_board((i + col_size), depth))
+            result.append(self.get_new_board((i + arr_size), depth))
 
         return result
 
@@ -26,7 +26,23 @@ class State:
 
     # 배치했을 때 충돌하는 개수
     def h(self):
-        score = 1
+        score = 0
+        indices = [i for i, v in enumerate(self.board) if v == 1]
+        row, col = [], []
+        # row, col 계산
+        for i in indices:
+            if i == 0:
+                row.append(0)
+                col.append(0)
+                continue
+            row.append(i  // self.size)
+            col.append(i  % self.size)
+        # 같은 행/열에 있을 때(자기 자신 제외)
+        for v in set(row):
+            score += row.count(v) - 1
+        for v in set(col):
+            score += col.count(v) - 1
+
         return score
 
     def g(self):
@@ -34,7 +50,6 @@ class State:
 
     def __str__(self):
         text = f"f(n)={self.f()} h(n)={self.h()} g(n)={self.g()}\n"
-        print(self.size)
         for i in range(self.size):
             row = i * self.size
             text += str(self.board[row:row+self.size]) + "\n"
