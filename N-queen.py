@@ -42,6 +42,16 @@ class State:
             score += row.count(v) - 1
         for v in set(col):
             score += col.count(v) - 1
+        # 대각선 충돌
+        # ↘↖ 방향 (r - c 값이 같으면 같은 대각선)
+        diag1 = [r - c for r, c in zip(row, col)]
+        for v in set(diag1):
+            score += diag1.count(v) - 1
+
+        # ↗↙ 방향 (r + c 값이 같으면 같은 대각선)
+        diag2 = [r + c for r, c in zip(row, col)]
+        for v in set(diag2):
+            score += diag2.count(v) - 1
 
         return score
 
@@ -80,7 +90,7 @@ def Astar(state):
         count += 1
         print(count)
         print(current)
-        if current.score == 0 and depth >= current.size:
+        if current.score == 0 and current.depth >= current.size:
             print("탐색 성공")
             break
 
