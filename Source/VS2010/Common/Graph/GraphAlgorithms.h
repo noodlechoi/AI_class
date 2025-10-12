@@ -1,4 +1,4 @@
-#ifndef GRAPHALGORITHMS_H
+﻿#ifndef GRAPHALGORITHMS_H
 #define GRAPHALGORITHMS_H
 #pragma warning (disable:4786)
 
@@ -104,59 +104,71 @@ public:
 template <class graph_type>
 bool Graph_SearchDFS<graph_type>::Search()
 {
-  //create a std stack of edges
-  std::stack<const Edge*> stack;
+    // 간선 개수 = 노드 개수 - 1
+    int maxDepth{ m_Graph.NumNodes() - 1 };
 
-  //create a dummy edge and put on the stack
-  Edge Dummy(m_iSource, m_iSource, 0);
-  
-  stack.push(&Dummy);
+    for (int depthLimit = 0; depthLimit <= maxDepth; ++depthLimit) {
+        // 매 반복마다 트리 초기화
+        m_Visited.assign(m_Graph.NumNodes(), unvisited);
+        m_Route.assign(m_Graph.NumNodes(), no_parent_assigned);
+        m_SpanningTree.clear();
 
-  //while there are edges in the stack keep searching
-  while (!stack.empty())
-  {
-    //grab the next edge
-    const Edge* Next = stack.top();
+        //create a std stack of edges and depth remaining
+        std::stack<std::pair<const Edge*, int>>stack;
 
-    //remove the edge from the stack
-    stack.pop();
+        //create a dummy edge and put on the stack
+        Edge Dummy(m_iSource, m_iSource, 0);
 
-    //make a note of the parent of the node this edge points to
-    m_Route[Next->To()] = Next->From();
+        stack.push(std::make_pair(&Dummy, depthLimit));
 
-    //put it on the tree. (making sure the dummy edge is not placed on the tree)
-    if (Next != &Dummy)
-    {
-      m_SpanningTree.push_back(Next);
+        //while there are edges in the stack keep searching
+        while (!stack.empty())
+        {
+            auto top = stack.top();
+            //remove the edge from the stack
+            stack.pop();
+
+            //grab the next edge
+            const Edge* Next = top.first;
+            int remaining = top.second;
+
+            //make a note of the parent of the node this edge points to
+            m_Route[Next->To()] = Next->From();
+
+            //put it on the tree. (making sure the dummy edge is not placed on the tree)
+            if (Next != &Dummy)
+            {
+                m_SpanningTree.push_back(Next);
+            }
+
+            //and mark it visited
+            m_Visited[Next->To()] = visited;
+
+            //if the target has been found the method can return success
+            if (Next->To() == m_iTarget)
+            {
+                return true;
+            }
+
+            // 남은 깊이가 0이면 확장X
+            if (remaining <= 0) continue;
+
+            //push the edges leading from the node this edge points to onto
+            //the stack (provided the edge does not point to a previously 
+            //visited node)
+            graph_type::ConstEdgeIterator ConstEdgeItr(m_Graph, Next->To());
+
+            for (const Edge* pE = ConstEdgeItr.begin(); !ConstEdgeItr.end(); pE = ConstEdgeItr.next()) {
+                if (m_Visited[pE->To()] == unvisited)
+                {
+                    // 깊이 감소
+                    stack.push(std::make_pair(pE, remaining - 1));
+                }
+            }
+        }
     }
-   
-    //and mark it visited
-    m_Visited[Next->To()] = visited;
-
-    //if the target has been found the method can return success
-    if (Next->To() == m_iTarget)
-    {
-      return true;
-    }
-
-    //push the edges leading from the node this edge points to onto
-    //the stack (provided the edge does not point to a previously 
-    //visited node)
-    graph_type::ConstEdgeIterator ConstEdgeItr(m_Graph, Next->To());
-
-    for (const Edge* pE=ConstEdgeItr.begin();
-        !ConstEdgeItr.end();
-         pE=ConstEdgeItr.next())
-    {
-      if (m_Visited[pE->To()] == unvisited)
-      {
-        stack.push(pE);
-      }
-    }
-  }
-
-  //no path to target
-  return false;
+    //no path to target
+    return false;
 }
 
 //-----------------------------------------------------------------------------
