@@ -1,4 +1,4 @@
-#ifndef GOAL_ENUMERATIONS_H
+﻿#ifndef GOAL_ENUMERATIONS_H
 #define GOAL_ENUMERATIONS_H
 
 #include <string>
@@ -23,8 +23,9 @@ enum
   goal_hunt_target,
   goal_strafe,
   goal_adjust_range,
-  goal_say_phrase
-  
+  goal_say_phrase,
+  goal_dodge_projectile   // 새 목표 추가
+
 };
 
 class GoalTypeToString : public TypeToString

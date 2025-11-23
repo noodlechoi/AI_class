@@ -1,4 +1,4 @@
-#include "Goal_Think.h"
+﻿#include "Goal_Think.h"
 #include <list>
 #include "misc/Cgdi.h"
 #include "../Raven_ObjectEnumerations.h"
@@ -11,12 +11,13 @@
 #include "Goal_Wander.h"
 #include "Raven_Goal_Types.h"
 #include "Goal_AttackTarget.h"
-
+#include "Goal_DodgeProjectile.h"
 
 #include "GetWeaponGoal_Evaluator.h"
 #include "GetHealthGoal_Evaluator.h"
 #include "ExploreGoal_Evaluator.h"
 #include "AttackTargetGoal_Evaluator.h"
+#include "DodgeProjectileGoal_Evalutor.h"
 
 
 Goal_Think::Goal_Think(Raven_Bot* pBot):Goal_Composite<Raven_Bot>(pBot, goal_think)
@@ -33,11 +34,14 @@ Goal_Think::Goal_Think(Raven_Bot* pBot):Goal_Composite<Raven_Bot>(pBot, goal_thi
   double RailgunBias = RandInRange(LowRangeOfBias, HighRangeOfBias);
   double ExploreBias = RandInRange(LowRangeOfBias, HighRangeOfBias);
   double AttackBias = RandInRange(LowRangeOfBias, HighRangeOfBias);
+  double DodgeBias = RandInRange(LowRangeOfBias, HighRangeOfBias);
+
 
   //create the evaluator objects
   m_Evaluators.push_back(new GetHealthGoal_Evaluator(HealthBias));
   m_Evaluators.push_back(new ExploreGoal_Evaluator(ExploreBias));
   m_Evaluators.push_back(new AttackTargetGoal_Evaluator(AttackBias));
+  m_Evaluators.push_back(new DodgeProjectileGoal_Evalutor(DodgeBias));
   m_Evaluators.push_back(new GetWeaponGoal_Evaluator(ShotgunBias,
                                                      type_shotgun));
   m_Evaluators.push_back(new GetWeaponGoal_Evaluator(RailgunBias,
@@ -165,6 +169,13 @@ void Goal_Think::AddGoal_AttackTarget()
     AddSubgoal( new Goal_AttackTarget(m_pOwner));
   }
 }
+
+void Goal_Think::AddGoal_DodgeProjectile()
+{
+    if (!m_pOwner->isAlive()) return;
+    AddSubgoal(new Goal_DodgeProjectile(m_pOwner));
+}
+
 
 //-------------------------- Queue Goals --------------------------------------
 //-----------------------------------------------------------------------------

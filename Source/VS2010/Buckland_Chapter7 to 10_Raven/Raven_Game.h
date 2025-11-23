@@ -1,4 +1,4 @@
-#ifndef RAVEN_ENV
+﻿#ifndef RAVEN_ENV
 #define RAVEN_ENV
 #pragma warning (disable:4786)
 //-----------------------------------------------------------------------------
@@ -160,6 +160,7 @@ public:
   PathManager<Raven_PathPlanner>* const    GetPathManager(){return m_pPathManager;}
   int                                      GetNumBots()const{return m_Bots.size();}
 
+  std::list<Raven_Projectile*> GetProjectiles() const { return m_Projectiles; }
   
   void  TagRaven_BotsWithinViewRange(BaseGameEntity* pRaven_Bot, double range)
               {TagNeighbors(pRaven_Bot, m_Bots, range);}  

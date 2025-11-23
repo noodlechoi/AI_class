@@ -1,10 +1,12 @@
-#include "Raven_Feature.h"
+﻿#include "Raven_Feature.h"
 #include "../Raven_Bot.h"
 #include "../navigation/Raven_PathPlanner.h"
 #include "../armory/Raven_Weapon.h"
 #include "../Raven_WeaponSystem.h"
 #include "../Raven_ObjectEnumerations.h"
 #include "../lua/Raven_Scriptor.h"
+#include "../Raven_Game.h"
+#include "../armory/Raven_Projectile.h"
 
 //-----------------------------------------------------------------------------
 double Raven_Feature::DistanceToItem(Raven_Bot* pBot, int ItemType)
@@ -94,6 +96,47 @@ double Raven_Feature::TotalWeaponStrength(Raven_Bot* pBot)
   const double Tweaker = 0.1;
 
   return Tweaker + (1-Tweaker)*(NumSlugs + NumCartridges + NumRockets)/(MaxRoundsForShotgun + MaxRoundsForRailgun + MaxRoundsForRocketLauncher);
+}
+
+bool Raven_Feature::IsProjectileThreat(Raven_Bot* pBot)
+{
+    Vector2D botPos = pBot->Pos();
+    double botRadius = pBot->BRadius();
+
+    for (auto proj : pBot->GetWorld()->GetProjectiles()) {
+        if (!proj->isDead() && !proj->HasImpacted()) {
+            // Projectile의 현재 위치와 진행 방향
+            Vector2D from = proj->Pos();
+            Vector2D to = proj->Pos() + proj->Heading() * 200;
+
+            // 내 Bot의 원과 궤적 선분의 최소 거리 계산
+            double dist = DistToLineSegment(from, to, botPos);
+
+            if (dist < botRadius) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+Vector2D Raven_Feature::DodgeDirection(Raven_Bot* pBot)
+{
+    for (auto proj : pBot->GetWorld()->GetProjectiles()) {
+        if (!proj->isDead() && !proj->HasImpacted()) {
+            Vector2D from = proj->Pos();
+            Vector2D to = proj->Pos() + proj->Heading() * 200;
+
+            double dist = DistToLineSegment(from, to, pBot->Pos());
+            if (dist < pBot->BRadius()) {
+                Vector2D vel = proj->Heading();
+                vel.Normalize();
+                return Vector2D(-vel.y, vel.x); // 수직 방향
+            }
+        }
+    }
+    return Vector2D(0, 0);
 }
 
 //------------------------------- HealthScore ---------------------------------
